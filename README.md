@@ -1,4 +1,4 @@
-# Obsidian Edition Features In Editor Plugin
+# Obsidian Edition Features In Editor
 
 ## Features
 - Underline
