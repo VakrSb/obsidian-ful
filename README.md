@@ -1,4 +1,4 @@
-# Obsidian Edition Features In Editor
+# Obsidian Edition Features In Editor Context Menu
 
 ## Features
 - Underline
