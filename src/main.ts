@@ -1,55 +1,89 @@
-import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { App, Editor, MarkdownView, Menu, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
 
-// Remember to rename these classes and interfaces!
-
-interface MyPluginSettings {
-	mySetting: string;
+export class ExamplePlugin extends Plugin {
+  async onload() {
+      }
 }
 
-const DEFAULT_SETTINGS: MyPluginSettings = {
-	mySetting: 'default'
+
+class HtmlTag {
+	tag_content: string;
+	description: string;
+	constructor(content: string, description:string){
+		this.tag_content = content;
+		this.description = description;
+	}
+	getStartTag(): string {
+		return "<"+this.tag_content+">";
+	}
+	getEndingTag() : string {
+		return "</"+this.tag_content+">";
+	}
+	getDesc(){
+		return this.description;
+	}
+}
+
+const tags = [
+	new HtmlTag("u",""),
+	new HtmlTag("b",""),
+	new HtmlTag("i",""),
+]
+
+function underline(editor: Editor) {
+	const selection = editor.getSelection();
+	editor.replaceSelection("<u>" + selection + "</u>")
+
 }
 
 export default class MyPlugin extends Plugin {
-	settings: MyPluginSettings;
 
 	async onload() {
 		await this.loadSettings();
 
-		// This adds an editor command that can perform some operation on the current editor instance
-		// this.addCommand({
-		// 	id: 'sample-editor-command',
-		// 	name: 'Sample editor command',
-		// 	editorCallback: (editor: Editor, view: MarkdownView) => {
-		// 		console.log(editor.getSelection());
-		// 		editor.replaceSelection('Sample Editor Command');
-		// 	}
-		// });
+		// this.registerEvent(
+		// 	this.app.workspace.on('click', (event) => {
+		//
+		// 	})
+		// );
 
-
-		// This adds a settings tab so the user can configure various aspects of the plugin
-		//this.addSettingTab(new SampleSettingTab(this.app, this));
 
 		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
 		// Using this function will automatically remove the event listener when this plugin is disabled.
-		// this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
-		// 	console.log('click', evt);
-		// });
-		this.registerEvent(
-			this.app.workspace.on("editor-menu", (menu, editor, view) => {
-				if (editor.somethingSelected()) {
+		this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
+			// console.log('click', evt);
+			const editor = this.app.workspace.getActiveViewOfType(MarkdownView).editor;
+			if (editor.somethingSelected()) {
+				const menu = new Menu(this.app);
+				tags.forEach((tag) => {
 					menu.addItem((item) => {
 						item
-							.setTitle("Underline selection")
+							.setTitle(tag)
 							.setIcon("underline")
 							.onClick(async () => {
-								const selection = editor.getSelection();
-								editor.replaceSelection("<u>"+selection+"</u>")
+								underline(editor);
 							});
 					});
-				}
-			})
-		);
+
+				})
+				menu.showAtMouseEvent(evt);
+			}
+		});
+
+
+		// this.registerEvent(
+		// 	this.app.workspace.on("editor-menu", (menu, editor, view) => {
+		// 		if (editor.somethingSelected()) {
+		// 			menu.addItem((item) => {
+		// 				item
+		// 					.setTitle("Underline selection")
+		// 					.setIcon("underline")
+		// 					.onClick(async () => {
+		// 												});
+		// 			});
+		// 		}
+		// 	})
+		// );
 
 	}
 
@@ -58,10 +92,8 @@ export default class MyPlugin extends Plugin {
 	}
 
 	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
 	}
 
 	async saveSettings() {
-		await this.saveData(this.settings);
 	}
 }
